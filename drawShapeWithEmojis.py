@@ -159,6 +159,7 @@ def screenshot(name: str = 'result'):
 
 #Dark Mode Button
 def dark_mode_button_func():
+    Screen().listen() #Added to bring to front
     Labels = [label1, label2, label3, label4, label5, label6, label7]
     if get_appearance_mode() == "Dark":
         set_appearance_mode("Light")
@@ -315,7 +316,8 @@ def repeatShape(x: callable):
 def command():
     global running
     if not running:
-        return        
+        return    
+    Screen().listen()
     hideturtle()
     global bounds
     bounds = int(boundsSlider.get())
