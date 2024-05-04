@@ -1,46 +1,32 @@
 from customtkinter import *
 from turtle import * 
-from customtkinter import *
 from random import randint
-from PIL import Image, ImageTk, ImageDraw
+from PIL import Image, ImageTk
+from tkinter import PhotoImage
 import pygetwindow
 import pyautogui
 '''Version Changes:
     - Added a bunch of emojis as new shapes using the write() function
     - Made code more versitile and fixed some bugs with the running flag within the repeatShape function
-    - Added ability to type into dropdown and ranodmly draws string like the other emojis'''
-
-
-# setup(width=1920, height=1080)
-screen = Screen()
-canvas = screen.cv
-# screen.cv._rootwindow.resizable(False, False)
-shape("turtle")
+    - Added ability to type into dropdown and ranodmly draws string like the other emojis
+    - I now understand why I was not able to add images to my tkinter window because 
+        I was trying to add them after the tutle screen was already created and running(possibly threading issue)
+    - Moved functions around to bring tkinter functions to the top of the file
+    '''
 
 
 #Mini Window
 root = CTk()
+# image_frame = CTkFrame(root)
+# image_frame.pack(fill="both", expand=True)
+ctkimage= CTkImage(light_image=Image.open("lightmode.png"), dark_image=Image.open("darkmode.png"), size=(30, 30))
+# create image label for dark mode/light mode
+label = CTkLabel(root, bg_color="transparent", image=ctkimage, compound="center", wraplength=300, text="")
+label.place(relx=.2, rely=0.8, anchor="center")
 root.title("Draw Shapes")
 root.geometry("300x600")
 set_appearance_mode("Light")
 running = True
-
-#Close the main window...
-def close_app():
-    global running
-    running = False
-    label7.configure(text="Now Closing...", font=("Arial", 30))
-    root.title("Bye Bye!")
-    screen.cv._rootwindow.title("Bye Bye!")
-    clear()
-    penup()
-    goto(0,0)
-    pendown()
-    smiley = "Goodbye!"
-    write(smiley, font=("Arial", 100), align="center")
-    penup()
-    root.quit()
-    SystemExit()
 
 #Dropdown menu
 options = ["Flower", "Square", "Circle", "Triangle", "Star", "Pentagon", 
@@ -52,6 +38,107 @@ options = ["Flower", "Square", "Circle", "Triangle", "Star", "Pentagon",
 dropdown = CTkComboBox(master=root, values=options, fg_color="sky blue")
 dropdown.place(relx=0.5, rely=0.07, anchor="center")
 dropdown.bind("<Return>", lambda enter: command())
+
+#Functions for creating scales and labels
+def scaleCreation(From: int, To: int, X: int, Y: int, default: str='0'):
+    scale = CTkSlider(root, from_=From, to=To, button_hover_color=("grey", "black"), progress_color=("sky blue", "blue"), bg_color="transparent")
+    scale.set(default)
+    scale.place(relx=X, rely=Y, anchor = "center")
+    return scale
+def labelCreation(text: str, X: float, Y: float, font: tuple=("Arial", 20)):
+    dark_mode() #Make sure the labels are created with the correct text color no matter the default appearance mode
+    label = CTkLabel(root, text=text, font=font, text_color=t, compound="center", wraplength=300, bg_color="transparent")
+    label.place(relx=X, rely=Y, anchor="center")
+    return label
+
+#Making sure labels are created correctly depending on the appearance mode
+def dark_mode():
+    global t
+    if get_appearance_mode() == "Dark":
+        t = "white"
+        bgcolor("black")
+    else:
+        t = "black"
+
+#Create scales and labels
+label1 = labelCreation("Enter Shape:",  0.5, 0.02)
+label2 = labelCreation("Enter # of shapes:", .5, .12)
+numShapes = scaleCreation(1, 200, 0.5, .18, 100)
+
+label3 = labelCreation("Enter Pen Size:", .5, .25)
+penSize = scaleCreation(1, 200, 0.5, .3, 30)
+
+label4 = labelCreation("Enter Bounds:", .5, .35)
+boundsSlider = scaleCreation(0, 300, 0.5, .4, 150)
+
+label5 = labelCreation("Enter # of random colors:", .5, .45)
+numColors = scaleCreation(1, 200, 0.5, .5, 100)
+
+label6 = labelCreation("Enter Speed: (0=Max Speed)", .5, .55)
+speedSlider = scaleCreation(0, 10, 0.5, .6, 0)
+label7 = labelCreation("",0.5,0.67, ("Arial", 15))
+
+#Entry for screenshot name
+entry = CTkEntry(root, width=150, corner_radius=32, border_color="sky blue", border_width=2, placeholder_text="Screenshot Name")
+entry.place(relx=0.5, rely=0.75, anchor = "center")
+
+#Draw and Clear Buttons
+button = CTkButton(root, text="DRAW", corner_radius=32, fg_color="black",
+                    hover_color="dark blue", border_color="sky blue",
+                      border_width=2, bg_color="transparent")
+
+button2 = CTkButton(root, text="CLEAR/RESET", corner_radius=32, fg_color="red",
+                     hover_color="dark blue", border_color="sky blue",
+                       border_width=2)
+
+
+
+
+
+button.place(relx=0.5, rely=0.85, anchor = "center")
+button2.place(relx=0.5, rely=0.9, anchor = "center")
+
+colors = []
+
+def generateColors(num: int = int(numColors.get())):
+    global colors
+    '''colors can be set to a certain color pallette or generated randomly.'''
+    '''The following are some color pallettes that can be used. Uncomment the one you want to use.'''
+    #colors = ['#A19542', '#4AA142', '#429EA1', '#4642A1','#9E42A1']
+    #colors = ['#DE73E5', '#E57773', '#E5CB73','#A8E573','#73E5B0']
+    #colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF']
+    #colors = ['orange', 'Green', 'sky blue', 'Royal Blue', '#645CE0' ]
+    colors = []
+    for i in range(num): 
+        colors.append('#%06X' % randint(0, 0xFFFFFF))
+
+# setup(width=1920, height=1080)
+screen = Screen()
+canvas = screen.cv
+# screen.cv._rootwindow.resizable(False, False)
+shape("turtle")
+
+#Close the main window...
+def close_app():
+    
+    global running
+    running = False
+    label7.configure(text="Now Closing...", font=("Arial", 30))
+    
+    root.title("Bye Bye!")
+    screen.cv._rootwindow.title("Bye Bye!")
+    clear()
+    penup()
+    goto(0,0)
+    pendown()
+    smiley = "Goodbye!"
+    write(smiley, font=("Arial", 100), align="center")
+    penup()
+    label7.destroy()
+    root.quit()
+    SystemExit()
+
+
 
 '''Screenshot function takes a screenshot of the turtle graphics window using 
     pyautogui.screenshot() and saves it to the images folder.'''
@@ -88,66 +175,7 @@ def dark_mode_button_func():
         dark_mode_button.configure(text="Light Mode")
         dropdown.configure(fg_color="dark blue")
 
-#Making sure labels are created correctly depending on the appearance mode
-def dark_mode():
-    global t
-    if get_appearance_mode() == "Dark":
-        t = "white"
-        bgcolor("black")
-    else:
-        t = "black"
-
-#Functions for creating scales and labels
-def scaleCreation(From: int, To: int, X: int, Y: int, default: str='0'):
-    scale = CTkSlider(root, from_=From, to=To, progress_color="blue")
-    scale.set(default)
-    scale.place(relx=X, rely=Y, anchor = "center")
-    return scale
-def labelCreation(text: str, X: float, Y: float, font: tuple=("Arial", 20)):
-    dark_mode() #Make sure the labels are created with the correct text color no matter the default appearance mode
-    label = CTkLabel(root, text=text, font=font, text_color=t, compound="center", wraplength=300, bg_color="transparent")
-    label.place(relx=X, rely=Y, anchor="center")
-    return label
-
-
-
-
-
-label1 = labelCreation("Enter Shape:",  0.5, 0.02)
-
-label2 = labelCreation("Enter # of shapes:", .5, .12)
-numShapes = scaleCreation(1, 200, 0.5, .18, 100)
-
-label3 = labelCreation("Enter Pen Size:", .5, .25)
-penSize = scaleCreation(1, 200, 0.5, .3, 30)
-
-label4 = labelCreation("Enter Bounds:", .5, .35)
-boundsSlider = scaleCreation(0, 300, 0.5, .4, 150)
-
-label5 = labelCreation("Enter # of random colors:", .5, .45)
-numColors = scaleCreation(1, 200, 0.5, .5, 100)
-
-label6 = labelCreation("Enter Speed: (0=Max Speed)", .5, .55)
-speedSlider = scaleCreation(0, 10, 0.5, .6, 0)
-label7 = labelCreation("",0.5,0.67, ("Arial", 15))
-
-
-entry = CTkEntry(root, width=150, corner_radius=32, border_color="sky blue", border_width=2, placeholder_text="Screenshot Name")
-entry.place(relx=0.5, rely=0.75, anchor = "center")
-
-# entry2 = CTkEntry(root, width=30, corner_radius=32, border_color="sky blue", border_width=2, placeholder_text="😀")
-# entry2.place(relx=0.1, rely=.85, anchor = "center")
-
-#Draw and Clear Buttons
-button = CTkButton(root, text="DRAW", corner_radius=32, fg_color="black",
-                    hover_color="dark blue", border_color="sky blue",
-                      border_width=2)
-
-button2 = CTkButton(root, text="CLEAR/RESET", corner_radius=32, fg_color="red",
-                     hover_color="dark blue", border_color="sky blue",
-                       border_width=2)
-# img = Image.open("lightmode.png")
-# click_button = Image(CTkImage(img))
+#Dark Mode Button and Screenshot Button
 dark_mode_button = CTkButton(root, text="Dark Mode", corner_radius=32, fg_color="black",
                               hover_color="dark blue", border_color="sky blue", border_width=2,
                                 command=dark_mode_button_func)
@@ -156,27 +184,9 @@ screenshot_button = CTkButton(root, text="Screenshot", corner_radius=32, fg_colo
                                hover_color="dark blue", border_color="sky blue", border_width=2,
                                command=screenshot)
 
-
-
 dark_mode_button.place(relx=0.5, rely=0.8, anchor = "center")
-button.place(relx=0.5, rely=0.85, anchor = "center")
-button2.place(relx=0.5, rely=0.9, anchor = "center")
 screenshot_button.place(relx=0.5, rely=0.95, anchor = "center")
 
-
-colors = []
-
-def generateColors(num: int = int(numColors.get())):
-    global colors
-    '''colors can be set to a certain color pallette or generated randomly.'''
-    '''The following are some color pallettes that can be used. Uncomment the one you want to use.'''
-    #colors = ['#A19542', '#4AA142', '#429EA1', '#4642A1','#9E42A1']
-    #colors = ['#DE73E5', '#E57773', '#E5CB73','#A8E573','#73E5B0']
-    #colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF']
-    #colors = ['orange', 'Green', 'sky blue', 'Royal Blue', '#645CE0' ]
-    colors = []
-    for i in range(num): 
-        colors.append('#%06X' % randint(0, 0xFFFFFF))
 
 def buildShape(Range: int, f: int=100, l: int=100, r: int=0):
     global running
