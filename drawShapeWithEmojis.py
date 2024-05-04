@@ -314,29 +314,32 @@ def repeatShape(x: callable):
    based on the dropdown menu selection.'''
 
 def command():
-    global running
-    if not running:
-        return    
-    Screen().listen()
-    hideturtle()
-    global bounds
-    bounds = int(boundsSlider.get())
-    selection = dropdown.get()
-    #Generate colors
-    global colors
-    generateColors()
-    # speed(speedSlider.get())
-    functions = [buildFlower, buildSquare, lambda: buildCircle(100), buildTriangle, buildStar, buildPentagon, buildHexagon, buildOctagon, buildSwirl, buildHeptagon, buildNonagon, buildDecagon, lambda: buildCircle(1), buildSixSidedStar, writeSmile, writeSad, writeHeart, writeStar, writeSun, writeMoon, writeSnowflake, buildPenguin, buildOtter]
-    for i in range(len(options)):
-        if selection == options[i]:
-            repeatShape(functions[i])
+    try:
+        global running
+        if not running:
+            return    
+        Screen().listen()
+        hideturtle()
+        global bounds
+        bounds = int(boundsSlider.get())
+        selection = dropdown.get()
+        #Generate colors
+        global colors
+        generateColors()
+        # speed(speedSlider.get())
+        functions = [buildFlower, buildSquare, lambda: buildCircle(100), buildTriangle, buildStar, buildPentagon, buildHexagon, buildOctagon, buildSwirl, buildHeptagon, buildNonagon, buildDecagon, lambda: buildCircle(1), buildSixSidedStar, writeSmile, writeSad, writeHeart, writeStar, writeSun, writeMoon, writeSnowflake, buildPenguin, buildOtter]
+        for i in range(len(options)):
+            if selection == options[i]:
+                repeatShape(functions[i])
+                return
+        if selection != "":
+            repeatShape(lambda: write(selection, font=("Arial", int(penSize.get()))))
             return
-    if selection != "":
-        repeatShape(lambda: write(selection, font=("Arial", int(penSize.get())) if running == True else done()))
+        label7.configure(text="please input a valid shape or text")
+        done()
         return
-    label7.configure(text="please input a valid shape")
-    done()
-    return
+    except:
+        pass
     
 '''superClear() is the function that will be called when the clear button is clicked.
    It will clear the screen, reset the number of shapes, pensize, numColors, and bounds to their
