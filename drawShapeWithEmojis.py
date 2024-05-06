@@ -19,12 +19,21 @@ import pyautogui
 root = CTk()
 # image_frame = CTkFrame(root)
 # image_frame.pack(fill="both", expand=True)
-ctkimage= CTkImage(light_image=Image.open("lightmode.png"), dark_image=Image.open("darkmode.png"), size=(30, 30))
+
+
+#I was forced to create a new transparent image that was the same size as the dark mode image using photoshop
+ctkimage= CTkImage(light_image=Image.open("images\\dots.png"), dark_image=Image.open("bg.png"), size=(700, 700))
 # create image label for dark mode/light mode
-label = CTkLabel(root, bg_color="transparent", image=ctkimage, compound="center", wraplength=300, text="")
-label.place(relx=.2, rely=0.8, anchor="center")
+imgLabel = CTkLabel(root, bg_color="transparent", image=ctkimage, compound="center", wraplength=300, text="")
+imgLabel.place(relx=.5, rely=0.5, anchor="center")
+
+ctkimage2= CTkImage(light_image=Image.open("lightmode.png"), dark_image=Image.open("darkmode.png"), size=(30, 30))
+# create image label for dark mode/light mode
+imgLabel2 = CTkLabel(root, bg_color="transparent", image=ctkimage2, compound="center", wraplength=300, text="")
+imgLabel2.place(relx=.05, rely=0.05, anchor="center")
+
 root.title("Draw Shapes")
-root.geometry("300x600")
+root.geometry("300x700")
 set_appearance_mode("Light")
 running = True
 
@@ -63,33 +72,44 @@ def dark_mode():
 #Create scales and labels
 label1 = labelCreation("Enter Shape:",  0.5, 0.02)
 label2 = labelCreation("Enter # of shapes:", .5, .12)
-numShapes = scaleCreation(1, 200, 0.5, .18, 100)
+numShapes = scaleCreation(1, 200, 0.5, .16, 100)
 
-label3 = labelCreation("Enter Pen Size:", .5, .25)
-penSize = scaleCreation(1, 200, 0.5, .3, 30)
+label3 = labelCreation("Enter Pen Size:", .5, .20)
+penSize = scaleCreation(1, 200, 0.5, .24, 30)
 
-label4 = labelCreation("Enter Bounds:", .5, .35)
-boundsSlider = scaleCreation(0, 300, 0.5, .4, 150)
+label4 = labelCreation("Enter Bounds:", .5, .28)
+boundsSlider = scaleCreation(0, 300, 0.5, .32, 150)
 
-label5 = labelCreation("Enter # of random colors:", .5, .45)
-numColors = scaleCreation(1, 200, 0.5, .5, 100)
+label5 = labelCreation("Enter # of random colors:", .5, .36)
+numColors = scaleCreation(1, 200, 0.5, .4, 100)
 
-label6 = labelCreation("Enter Speed: (0=Max Speed)", .5, .55)
-speedSlider = scaleCreation(0, 10, 0.5, .6, 0)
+label6 = labelCreation("Enter Speed: (0=Max Speed)", .5, .45)
+speedSlider = scaleCreation(0, 10, 0.5, .49, 0)
 label7 = labelCreation("",0.5,0.67, ("Arial", 15))
 
 #Entry for screenshot name
 entry = CTkEntry(root, width=150, corner_radius=32, border_color="sky blue", border_width=2, placeholder_text="Screenshot Name")
 entry.place(relx=0.5, rely=0.75, anchor = "center")
 
+#Entry for bg color
+entry2 = CTkEntry(root, width=150, corner_radius=32, border_color="sky blue", border_width=2, placeholder_text="Background Color")
+entry2.place(relx=0.5, rely=0.55, anchor = "center")
+entry2.bind("<Return>", lambda arg: entry2Function())
+
+def entry2Function():
+    try:
+        bgcolor(entry2.get())
+    except:
+        label7.configure(text="Please enter a valid color")
+
 #Draw and Clear Buttons
 button = CTkButton(root, text="DRAW", corner_radius=32, fg_color="black",
-                    hover_color="dark blue", border_color="sky blue",
-                      border_width=2, bg_color="transparent")
+                                        hover_color="dark blue", border_color="sky blue",
+                                            border_width=2, bg_color="transparent")
 
 button2 = CTkButton(root, text="CLEAR/RESET", corner_radius=32, fg_color="red",
-                     hover_color="dark blue", border_color="sky blue",
-                       border_width=2)
+                                         hover_color="dark blue", border_color="sky blue",
+                                             border_width=2)
 
 
 
@@ -115,10 +135,15 @@ def generateColors(num: int = int(numColors.get())):
 # setup(width=1920, height=1080)
 screen = Screen()
 canvas = screen.cv
-# screen.cv._rootwindow.resizable(False, False)
+screen.cv._rootwindow.resizable(False, False)
 shape("turtle")
 
-#Close the main window...
+#Function to change background color
+def background_color(color: str):
+    bgcolor(color)
+    
+
+#Function runs when user exits the main window...
 def close_app():
     
     global running
@@ -134,7 +159,6 @@ def close_app():
     smiley = "Goodbye!"
     write(smiley, font=("Arial", 100), align="center")
     penup()
-    label7.destroy()
     root.quit()
     SystemExit()
 
@@ -309,9 +333,12 @@ def repeatShape(x: callable):
         randomH = randint(-window_height()//2+bounds, window_height()//2-bounds)
         goto(randomW, randomH)
 
+
+
 '''command() is the function that will be called when the draw button is clicked.
    It will call the repeatShape function with the appropriate shape function 
    based on the dropdown menu selection.'''
+
 
 def command():
     try:
