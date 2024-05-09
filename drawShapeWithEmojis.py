@@ -30,7 +30,7 @@ imgLabel.place(relx=.5, rely=0.5, anchor="center")
 ctkimage2= CTkImage(light_image=Image.open("lightmode.png"), dark_image=Image.open("darkmode.png"), size=(30, 30))
 # create image label for dark mode/light mode
 imgLabel2 = CTkLabel(root, bg_color="transparent", image=ctkimage2, compound="center", wraplength=300, text="")
-imgLabel2.place(relx=.05, rely=0.05, anchor="center")
+imgLabel2.place(relx=0.05, rely=0.05, anchor="center")
 
 root.title("Draw Shapes")
 root.geometry("300x700")
@@ -70,22 +70,24 @@ def dark_mode():
         t = "black"
 
 #Create scales and labels
-label1 = labelCreation("Enter Shape:",  0.5, 0.02)
-label2 = labelCreation("Enter # of shapes:", .5, .12)
+label1 = labelCreation("Shape:",  0.5, 0.02)
+label2 = labelCreation("# of shapes:", .5, .12)
 numShapes = scaleCreation(1, 200, 0.5, .16, 100)
 
-label3 = labelCreation("Enter Pen Size:", .5, .20)
+label3 = labelCreation("Pen Size:", .5, .20)
 penSize = scaleCreation(1, 200, 0.5, .24, 30)
 
-label4 = labelCreation("Enter Bounds:", .5, .28)
+label4 = labelCreation("Bounds:", .5, .28)
 boundsSlider = scaleCreation(0, 300, 0.5, .32, 150)
 
-label5 = labelCreation("Enter # of random colors:", .5, .36)
+label5 = labelCreation("# of random colors:", .5, .36)
 numColors = scaleCreation(1, 200, 0.5, .4, 100)
 
-label6 = labelCreation("Enter Speed: (0=Max Speed)", .5, .45)
+label6 = labelCreation("Speed: (0=Max Speed)", .5, .45)
 speedSlider = scaleCreation(0, 10, 0.5, .49, 0)
 label7 = labelCreation("",0.5,0.67, ("Arial", 15))
+
+
 
 #Entry for screenshot name
 entry = CTkEntry(root, width=150, corner_radius=32, border_color="sky blue", border_width=2, placeholder_text="Screenshot Name")
@@ -129,8 +131,11 @@ def generateColors(num: int = int(numColors.get())):
     #colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF']
     #colors = ['orange', 'Green', 'sky blue', 'Royal Blue', '#645CE0' ]
     colors = []
+    if num<1:
+        num = 1
     for i in range(num): 
         colors.append('#%06X' % randint(0, 0xFFFFFF))
+        
 
 # setup(width=1920, height=1080)
 screen = Screen()
@@ -305,6 +310,7 @@ def buildOtter():
     buildEmoji("🦦")
 
 def repeatShape(x: callable):
+    global colors
     global running
     setheading(0)
     global bounds
@@ -350,9 +356,13 @@ def command():
         global bounds
         bounds = int(boundsSlider.get())
         selection = dropdown.get()
+
         #Generate colors
         global colors
-        generateColors()
+        generateColors(numColors.get()) #This line is needed because the function calls itself with the default numColors.get() value which is 100
+       
+        # print(len(colors))
+
         # speed(speedSlider.get())
         functions = [buildFlower, buildSquare, lambda: buildCircle(100), buildTriangle, buildStar, buildPentagon, buildHexagon, buildOctagon, buildSwirl, buildHeptagon, buildNonagon, buildDecagon, lambda: buildCircle(1), buildSixSidedStar, writeSmile, writeSad, writeHeart, writeStar, writeSun, writeMoon, writeSnowflake, buildPenguin, buildOtter]
         for i in range(len(options)):
@@ -360,13 +370,13 @@ def command():
                 repeatShape(functions[i])
                 return
         if selection != "":
-            repeatShape(lambda: write(selection, font=("Arial", int(penSize.get()))))
+            repeatShape(lambda: write(selection, font=("Arial", int(penSize.get())), align="center", color=colors[randint(0,len(colors)-1)]))
             return
         label7.configure(text="please input a valid shape or text")
         done()
         return
-    except:
-        pass
+    except Exception as e:
+        print("An error occured",e)
     
 '''superClear() is the function that will be called when the clear button is clicked.
    It will clear the screen, reset the number of shapes, pensize, numColors, and bounds to their
@@ -388,6 +398,7 @@ def superClear():
         done() #This is necessary for turtle to stop drawing if clicked before drawing is finished
     except:
         pass
+    
 
 button.configure(command=command)
 button2.configure(command=superClear)
