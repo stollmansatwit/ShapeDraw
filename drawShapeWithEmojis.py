@@ -5,14 +5,7 @@ from PIL import Image, ImageTk
 from tkinter import PhotoImage
 import pygetwindow
 import pyautogui
-'''Version Changes:
-    - Added a bunch of emojis as new shapes using the write() function
-    - Made code more versitile and fixed some bugs with the running flag within the repeatShape function
-    - Added ability to type into dropdown and ranodmly draws string like the other emojis
-    - I now understand why I was not able to add images to my tkinter window because 
-        I was trying to add them after the tutle screen was already created and running(possibly threading issue)
-    - Moved functions around to bring tkinter functions to the top of the file
-    '''
+import multiprocessing
 
 
 #Mini Window
@@ -133,7 +126,7 @@ def generateColors(num: int = int(numColors.get())):
     colors = []
     if num<1:
         num = 1
-    for i in range(num): 
+    for _ in range(num): 
         colors.append('#%06X' % randint(0, 0xFFFFFF))
         
 
@@ -150,24 +143,24 @@ def background_color(color: str):
 
 #Function runs when user exits the main window...
 def close_app():
-    
+    clear()
     global running
     running = False
     label7.configure(text="Now Closing...", font=("Arial", 30))
     
     root.title("Bye Bye!")
     screen.cv._rootwindow.title("Bye Bye!")
-    clear()
+    
     penup()
     goto(0,0)
     pendown()
     smiley = "Goodbye!"
     write(smiley, font=("Arial", 100), align="center")
     penup()
+    
 
-    for i in range(100): #Loop to end program. This is necessary to end multiple processes in call stack until it finally ends
-        root.quit()
-        SystemExit()    
+    for _ in range(100): #Loop to end program. This is necessary to end multiple processes in call stack until it finally ends
+        quit()
 
 
 
@@ -222,7 +215,7 @@ screenshot_button.place(relx=0.5, rely=0.95, anchor = "center")
 
 def buildShape(Range: int, f: int=100, l: int=100, r: int=0):
     global running
-    for i in range(Range):
+    for _ in range(Range):
         if not running:
             break
         forward(f)
@@ -273,7 +266,7 @@ def buildDecagon():
 
 def buildSixSidedStar():
     setheading(0)
-    for i in range(6):
+    for _ in range(6):
         left(60)
         forward(100)
         right(120)
@@ -312,15 +305,17 @@ def buildOtter():
     buildEmoji("🦦")
 
 def repeatShape(x: callable):
-    global colors
     global running
+    if not running:
+        return
+    global colors
+    
     setheading(0)
     global bounds
     int(bounds)
     num = int(numShapes.get())
-    if not running:
-        return
-    for i in range(num):
+    
+    for _ in range(num):
         if not running:
             return
         num = int(numShapes.get())
@@ -384,11 +379,9 @@ def command():
    It will clear the screen, reset the number of shapes, pensize, numColors, and bounds to their
    default values, and update the canvas.'''
 def superClear():
-    global running
-    if not running:
-        return
-    global commandcount
-    commandcount = 0
+    # global running
+    # if not running:
+    #     return
     try:
         setheading(0)
         clear()
