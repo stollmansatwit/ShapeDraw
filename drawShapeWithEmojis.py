@@ -164,8 +164,10 @@ def close_app():
     smiley = "Goodbye!"
     write(smiley, font=("Arial", 100), align="center")
     penup()
-    root.quit()
-    SystemExit()
+
+    for i in range(100): #Loop to end program. This is necessary to end multiple processes in call stack until it finally ends
+        root.quit()
+        SystemExit()    
 
 
 
@@ -370,7 +372,7 @@ def command():
                 repeatShape(functions[i])
                 return
         if selection != "":
-            repeatShape(lambda: write(selection, font=("Arial", int(penSize.get())), align="center", color=colors[randint(0,len(colors)-1)]))
+            repeatShape(lambda: write(selection, font=("Arial", int(penSize.get())), align="center"))
             return
         label7.configure(text="please input a valid shape or text")
         done()
