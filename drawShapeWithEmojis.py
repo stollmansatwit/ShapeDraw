@@ -359,7 +359,7 @@ def command():
 
         #Generate colors
         global colors
-        generateColors(numColors.get()) #This line is needed because the function calls itself with the default numColors.get() value which is 100
+        generateColors(int(numColors.get())) #This line is needed because the function calls itself with the default numColors.get() value which is 100
        
         # print(len(colors))
 
