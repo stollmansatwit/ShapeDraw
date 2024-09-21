@@ -157,7 +157,7 @@ def close_app():
     smiley = "Goodbye!"
     write(smiley, font=("Arial", 100), align="center")
     penup()
-    
+    sys.exit()
 
     for _ in range(100): #Loop to end program. This is necessary to end multiple processes in call stack until it finally ends
         quit()
@@ -401,7 +401,10 @@ button2.configure(command=superClear)
 #...Close windows
 screen.cv._rootwindow.protocol("WM_DELETE_WINDOW", close_app)
 root.protocol("WM_DELETE_WINDOW", close_app)
-
+root.bind("<Escape>", lambda event: close_app())
+root.bind_all("<Control-w>", lambda event: close_app())
+screen.cv._rootwindow.bind("<Escape>", lambda event: close_app())
+screen.cv._rootwindow.bind("<Control-w>", lambda event: close_app())
 
 
 #Run the main loop
