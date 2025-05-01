@@ -6,11 +6,23 @@ from tkinter import PhotoImage
 import pygetwindow
 import pyautogui
 import multiprocessing
-# import pynput
+import pynput
+from pynput.mouse import Listener
+import threading
 
+# Function to listen for mouse inputs
+def mouse_listener():
+    def on_click(x, y, button, pressed):
+        if pressed:
+            print(f"Mouse clicked at ({x}, {y}) with {button}")
+        else:
+            print(f"Mouse released at ({x}, {y}) with {button}")
+
+root = CTk()
 
 #Mini Window
-root = CTk()
+
+
 # image_frame = CTkFrame(root)
 # image_frame.pack(fill="both", expand=True)
 
@@ -134,7 +146,7 @@ def generateColors(num: int = int(numColors.get())):
 # setup(width=1920, height=1080)
 screen = Screen()
 canvas = screen.cv
-screen.cv._rootwindow.resizable(True, True)
+screen.cv._rootwindow.resizable(False, False)
 shape("turtle")
 
 #Function to change background color
@@ -159,8 +171,9 @@ def close_app():
     write(smiley, font=("Arial", 100), align="center")
     penup()
     sys.exit()
-    root.destroy()
-    screen.bye()
+
+    for _ in range(100): #Loop to end program. This is necessary to end multiple processes in call stack until it finally ends
+        quit()
 
 
 
@@ -344,6 +357,9 @@ def repeatShape(x: callable):
 
 
 def command():
+    listener_thread = threading.Thread(target=mouse_listener, daemon=True)
+    listener_thread.start()
+    
     try:
         global running
         if not running:
@@ -395,6 +411,8 @@ def superClear():
         pass
     
 
+
+
 button.configure(command=command)
 button2.configure(command=superClear)
 
@@ -411,3 +429,5 @@ print("\nThank you for using my program!")
 #Run the main loop
 root.mainloop()
 
+listener_thread = threading.Thread(target=mouse_listener, daemon=True)
+listener_thread.start()
